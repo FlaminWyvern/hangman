@@ -1,10 +1,11 @@
+// Libararies:
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
 
-
+// Global Variables:
 const char *pics[] = {
     "  +---+\n"
     "  |   |\n"
@@ -70,6 +71,7 @@ char alphabet[26];
 int unusedIndex = 0;
 char unused[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'} ;
 
+// Function Declarations:
 void printHangman(int index);
 char *createHiddenWord(char *word);
 char *findWord(int index);
@@ -81,20 +83,27 @@ int *createIndices();
 int scanRepeatingLetters(char c);
 int scanUnused(char c);
 
-int main(int argc, char* argv[]){
+// Main: 
+int main(void){
+    // Local Variables: 
     int wordIndex = getRandomIndex();
     char *word = findWord(wordIndex);
     char *hiddenWord = createHiddenWord(word);
     int gameIndex = 0;
     int k = 0;
     int correct = 0;
+
+    // Program:
     puts("WELCOME TO HANGMAN!");
+
     while(gameIndex < 6){
         int *indices = createIndices();
+
         printf("\nEnter letter: ");
         char letter;
         scanf(" %c", &letter);
         clearInputBuffer();
+
         if(scanRepeatingLetters(letter)){
             puts("Letter already guessed");
             puts(hiddenWord);
@@ -103,8 +112,10 @@ int main(int argc, char* argv[]){
             for(int i=0; i < 26; i++){
                 printf("%c ", unused[i]);
             }
+            printf("\n************************************************************");
             continue;
         }
+
         int hiddenWordIndex = scanWord(letter, word);
         if(hiddenWordIndex != -1){
             for(int i=0; i  < hiddenWordIndex; i++){
@@ -112,21 +123,24 @@ int main(int argc, char* argv[]){
             }
             alphabet[k] = letter;
             k++;
+
             if(scanUnused(letter)){
                 unused[unusedIndex] = '-';
                 unusedIndex = 0;
             }
             puts(hiddenWord);
+
             if(scanDashes(hiddenWord)){
                 correct = 1;
                 break;
             }
-            
         }
+
         else{
             puts("Letter not in word");
             alphabet[k] = letter;
             k++;
+
             if(scanUnused(letter)){
                 unused[unusedIndex] = '-';
                 unusedIndex = 0;
@@ -134,25 +148,33 @@ int main(int argc, char* argv[]){
             gameIndex++;
             puts(hiddenWord);
         }
+
         printHangman(gameIndex);
         puts("\nUnused letters: ");
+
         for(int i=0; i < 26; i++){
             printf("%c ", unused[i]);
         }
+        printf("\n************************************************************");
         free(indices);
     }
     free(hiddenWord);
+
     if(correct){
         puts("Great Job!");
     }
+
     else{
         printf("\nThe word was %s\n", word);
     }
+
     puts("Thanks for playing!");
     sleep(3);
     system("clear");
 }
 
+
+// Function Implementations:
 void printHangman(int index){
     printf("%s", pics[index]);
 }
