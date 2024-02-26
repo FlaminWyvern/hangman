@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
+
 const char *pics[] = {
     "  +---+\n"
     "  |   |\n"
@@ -66,6 +67,8 @@ char* animalsWords[] = {"ant", "baboon", "badger", "bat", "bear", "beaver", "cam
 const int animalsLength = 64;
 int *indices;
 char alphabet[26];
+int unusedIndex = 0;
+char unused[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'} ;
 
 void printHangman(int index);
 char *createHiddenWord(char *word);
@@ -76,6 +79,7 @@ void clearInputBuffer();
 int scanDashes(char *word);
 int *createIndices();
 int scanRepeatingLetters(char c);
+int scanUnused(char c);
 
 int main(int argc, char* argv[]){
     int wordIndex = getRandomIndex();
@@ -95,8 +99,10 @@ int main(int argc, char* argv[]){
             puts("Letter already guessed");
             puts(hiddenWord);
             printHangman(gameIndex);
-            sleep(2);
-            system("clear");
+            puts("\nUnused letters: ");
+            for(int i=0; i < 26; i++){
+                printf("%c ", unused[i]);
+            }
             continue;
         }
         int hiddenWordIndex = scanWord(letter, word);
@@ -106,6 +112,10 @@ int main(int argc, char* argv[]){
             }
             alphabet[k] = letter;
             k++;
+            if(scanUnused(letter)){
+                unused[unusedIndex] = '-';
+                unusedIndex = 0;
+            }
             puts(hiddenWord);
             if(scanDashes(hiddenWord)){
                 correct = 1;
@@ -117,13 +127,19 @@ int main(int argc, char* argv[]){
             puts("Letter not in word");
             alphabet[k] = letter;
             k++;
+            if(scanUnused(letter)){
+                unused[unusedIndex] = '-';
+                unusedIndex = 0;
+            }
             gameIndex++;
             puts(hiddenWord);
         }
         printHangman(gameIndex);
+        puts("\nUnused letters: ");
+        for(int i=0; i < 26; i++){
+            printf("%c ", unused[i]);
+        }
         free(indices);
-        sleep(2);
-        system("clear");
     }
     free(hiddenWord);
     if(correct){
@@ -133,6 +149,8 @@ int main(int argc, char* argv[]){
         printf("\nThe word was %s\n", word);
     }
     puts("Thanks for playing!");
+    sleep(3);
+    system("clear");
 }
 
 void printHangman(int index){
@@ -159,7 +177,6 @@ char *createHiddenWord(char *word){
 }
 
 int scanWord(char c, char *word){
-    // createIndices();
     int j=0;
     int charFound = 0;
     for(int i=0; i < strlen(word); i++){
@@ -199,6 +216,16 @@ int scanRepeatingLetters(char c){
         if(alphabet[i] == c){
             return 1;
         }
+    }
+    return 0;
+}
+
+int scanUnused(char c){
+    while(unusedIndex < 26){
+        if(unused[unusedIndex] == c){
+            return 1;
+        }
+        unusedIndex++;
     }
     return 0;
 }
